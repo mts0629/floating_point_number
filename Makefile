@@ -1,10 +1,30 @@
 CC := gcc
-TARGET := parse_fp
+CFLAGS = -Wall -Wextra -Wpedantic -std=c99 -I$(INCDIR)
 
-.PHONY: clean
+SRCDIR := .
+INCDIR := .
+BLDDIR := ./build
 
-parse_fp: parse_fp.c
-	$(CC) -Wall -Wextra -Wpedantic -std=c99 $< -o $@
+SRCS = $(wildcard $(SRCDIR)/*.c)
+OBJS = $(addprefix $(BLDDIR)/, $(SRCS:.c=.o))
+DEPS = $(OBJS:.o=.d)
+
+TARGET = $(BLDDIR)/parse_fp32
+
+.PHONY: all mkd clean
+
+all: $(TARGET)
+
+-include $(DEPS)
+
+mkd:
+	@mkdir -p $(BLDDIR)/$(SRCDIR)
+
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) $^ -o $@
+
+$(BLDDIR)/%.o: $(SRCDIR)/%.c mkd
+	$(CC) $(CFLAGS) -c -MMD -MP $< -o $@
 
 clean:
-	$(RM) $(TARGET)
+	$(RM) $(BLDDIR)
