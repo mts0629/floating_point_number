@@ -1,30 +1,32 @@
 CC := gcc
-CFLAGS = -Wall -Wextra -Wpedantic -std=c99 -I$(INCDIR)
+CFLAGS = -Wall -Wextra -Wpedantic -std=c99 -I$(SRCDIR)
 
-SRCDIR := .
-INCDIR := .
-BLDDIR := ./build
+SRCDIR := src
+OBJDIR = $(BLDDIR)/obj
+BLDDIR := build
 
 SRCS = $(wildcard $(SRCDIR)/*.c)
-OBJS = $(addprefix $(BLDDIR)/, $(SRCS:.c=.o))
+OBJS = $(addprefix $(OBJDIR)/, $(SRCS:.c=.o))
+TARGETS = $(addprefix $(BLDDIR)/, $(basename $(wildcard *.c)))
+
 DEPS = $(OBJS:.o=.d)
+DEPS += $(addsuffix .d, $(subst $(BLDDIR), $(OBJDIR), $(TARGETS)))
 
-TARGET = $(BLDDIR)/parse_fp32
+.PHONY: all clean
 
-.PHONY: all mkd clean
+.PRECIOUS: $(OBJDIR)/%.o
 
-all: $(TARGET)
+all: $(TARGETS)
 
 -include $(DEPS)
 
-mkd:
-	@mkdir -p $(BLDDIR)/$(SRCDIR)
-
-$(TARGET): $(OBJS)
+$(BLDDIR)/%: $(OBJDIR)/%.o $(OBJS)
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $^ -o $@
 
-$(BLDDIR)/%.o: $(SRCDIR)/%.c mkd
+$(OBJDIR)/%.o: %.c
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c -MMD -MP $< -o $@
 
 clean:
-	$(RM) $(BLDDIR)
+	$(RM) -r $(BLDDIR)
