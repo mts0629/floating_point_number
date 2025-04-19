@@ -12,10 +12,12 @@ typedef union {
 // Bit expression of float based on IEEE binary32
 typedef struct {
     uint8_t sign;       // 1 bit, 1 for negative
-    int8_t exp;         // 8 bit
-                        // (biased by +-127 while processing)
+    uint8_t exp;        // 8 bit ([-127, 127], biased by 127)
     uint32_t mantissa;  // 23 bit by hidden bit convension
 } Binary32;
+
+// Biased exponent for Binary32
+#define FP32_EXP(exp) { (exp) + 127 }
 
 // Convert float to Binary32
 Binary32 fp32_cvt_to_binary32(const float value);
