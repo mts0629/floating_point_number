@@ -12,11 +12,14 @@ TARGETS = $(addprefix $(BLDDIR)/, $(basename $(wildcard *.c)))
 DEPS = $(OBJS:.o=.d)
 DEPS += $(addsuffix .d, $(subst $(BLDDIR), $(OBJDIR), $(TARGETS)))
 
-.PHONY: all clean
+.PHONY: all debug clean
 
 .PRECIOUS: $(OBJDIR)/%.o
 
 all: $(TARGETS)
+
+debug: CFLAGS += -g -O0
+debug: $(TARGETS)
 
 -include $(DEPS)
 
