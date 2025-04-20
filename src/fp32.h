@@ -25,4 +25,7 @@ Binary32 fp32_cvt_to_binary32(const float value);
 // Convert Binary32 to float
 float fp32_cvt_to_float(const Binary32 binary32);
 
+// Add 2 Binary32 values: a + b
+Binary32 fp32_add_binary32(const Binary32 a, const Binary32 b);
+
 #endif // FP32_H

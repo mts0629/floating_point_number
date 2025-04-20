@@ -19,3 +19,38 @@ float fp32_cvt_to_float(const Binary32 bin32) {
 
     return buf.fp32;
 }
+
+Binary32 fp32_add_binary32(const Binary32 a, const Binary32 b) {
+    // Signed mantissas...                with a hidden bit
+    int32_t a_man = (int32_t)a.mantissa | (0x1 << 23) | ((a.sign & 0x1) << 31);
+    int32_t b_man = (int32_t)b.mantissa | (0x1 << 23) | ((b.sign & 0x1) << 31);
+
+    // Adjust exp. scale to a large one
+    uint8_t sum_exp = a.exp;
+    if (a.exp > b.exp) {
+        b_man >>= (a.exp - b.exp);
+    } else if (b.exp > a.exp) {
+        a_man >>= (b.exp - a.exp);
+        sum_exp = b.exp;
+    }
+
+    // Add mantissas
+    int32_t sum_man = a_man + b_man;
+
+    // Normalize summed mantissa: scale to make MSB (b23) to 1
+    if (((sum_man & 0x1000000) >> 24) == 0x1) {
+        sum_man >>= 1;
+        sum_exp++;
+    }
+    while (((sum_man & 0x800000) >> 23) != 0x1) {
+        sum_man <<= 1;
+        sum_exp--;
+    }
+
+    // (Operation for overflow/underflow of exp. bits should be done here)
+
+    // Signature bit
+    uint8_t sign = (sum_man & 0x80000000) >> 31;
+
+    return (Binary32){ sign, sum_exp, (uint32_t)(sum_man & 0x7fffff) };
+}
