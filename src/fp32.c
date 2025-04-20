@@ -6,7 +6,7 @@ Binary32 fp32_cvt_to_binary32(const float value) {
     return (Binary32) {
         .sign = ((buf.u32 & 0x80000000) >> 31) & 0x1,
         .exp = ((buf.u32 & 0x7f800000) >> 23) & 0xff,
-        .mantissa = buf.u32 & 0x007fffff
+        .mantissa = buf.u32 & 0x7fffff
     };
 }
 
@@ -22,8 +22,12 @@ float fp32_cvt_to_float(const Binary32 bin32) {
 
 Binary32 fp32_add_binary32(const Binary32 a, const Binary32 b) {
     // Signed mantissas...                              with a hidden bit
-    int32_t a_man = (int32_t)((a.mantissa & 0x7fffff) | (0x1 << 23) | ((a.sign & 0x1) << 31));
-    int32_t b_man = (int32_t)((b.mantissa & 0x7fffff) | (0x1 << 23) | ((b.sign & 0x1) << 31));
+    int32_t a_man = (int32_t)(((a.sign & 0x1) << 31) |
+                              (0x1 << 23) |
+                              (a.mantissa & 0x7fffff));
+    int32_t b_man = (int32_t)(((b.sign & 0x1) << 31) |
+                              (0x1 << 23) | 
+                              (b.mantissa & 0x7fffff));
 
     // Adjust exp. scale to a large one
     uint8_t sum_exp = a.exp;
