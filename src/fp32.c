@@ -21,13 +21,17 @@ float fp32_cvt_to_float(const Binary32 bin32) {
 }
 
 Binary32 fp32_add_binary32(const Binary32 a, const Binary32 b) {
-    // Signed mantissas...                              with a hidden bit
-    int32_t a_man = (int32_t)(((a.sign & 0x1) << 31) |
-                              (0x1 << 23) |
-                              (a.mantissa & 0x7fffff));
-    int32_t b_man = (int32_t)(((b.sign & 0x1) << 31) |
-                              (0x1 << 23) | 
-                              (b.mantissa & 0x7fffff));
+    // Signed mantissas with a hidden bit
+    int32_t a_man = (int32_t)((0x1 << 23) | (a.mantissa & 0x7fffff));
+    int32_t b_man = (int32_t)((0x1 << 23) | (b.mantissa & 0x7fffff));
+
+    // For calculation, convert mantissas to two's complement
+    if (a.sign == 1) {
+        a_man = -a_man;
+    }
+    if (b.sign == 1) {
+        b_man = -b_man;
+    }
 
     // Adjust exp. scale to a large one
     uint8_t sum_exp = a.exp;
@@ -43,6 +47,11 @@ Binary32 fp32_add_binary32(const Binary32 a, const Binary32 b) {
 
     // Signature bit
     uint8_t sign = ((uint32_t)sum_man & 0x80000000) >> 31;
+
+    // Mantissa is an absolute value
+    if (sum_man < 0) {
+        sum_man = -sum_man;
+    }
 
     // Normalize summed mantissa: scale to make MSB (b23) to 1
     if (((sum_man & 0x1000000) >> 24) == 0x1) {

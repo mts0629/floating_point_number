@@ -25,6 +25,15 @@ int main(void) {
         c.sign, c.exp, c.mantissa
     );
 
+    // Negative values
+    a = fp32_cvt_to_binary32(-42.195);
+    b = fp32_cvt_to_binary32(42);
+    c = fp32_add_binary32(a, b);
+    printf("%f + %f = %f (sign: %u, exp: %u, mantissa: 0x%x)\n",
+        fp32_cvt_to_float(a), fp32_cvt_to_float(b), fp32_cvt_to_float(c),
+        c.sign, c.exp, c.mantissa
+    );
+
     // Overflow: return +-inf
     a = fp32_cvt_to_binary32(FLT_MAX);
     b = fp32_cvt_to_binary32(1.70141183e+38);
