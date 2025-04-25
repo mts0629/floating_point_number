@@ -1,6 +1,9 @@
 # floating_point_number
 
-Know floating-point number
+Know floating-point number mechanisms
+
+- Emulation of IEEE 754 binary32 expression
+- Emulation of binary32 calculation process
 
 # Environment
 
