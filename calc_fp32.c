@@ -34,6 +34,15 @@ int main(void) {
         c.sign, c.exp, c.mantissa
     );
 
+    // Round
+    a = fp32_cvt_to_binary32(8388609); // exp: 23
+    b = fp32_cvt_to_binary32(0.5); // exp: -1
+    c = fp32_add_binary32(a, b); // Guard bit=1, ulp=1 -> round
+    printf("%f + %f = %f (sign: %u, exp: %u, mantissa: 0x%x)\n",
+        fp32_cvt_to_float(a), fp32_cvt_to_float(b), fp32_cvt_to_float(c),
+        c.sign, c.exp, c.mantissa
+    );
+
     // Overflow: return +-inf
     a = fp32_cvt_to_binary32(FLT_MAX);
     b = fp32_cvt_to_binary32(1.70141183e+38);
