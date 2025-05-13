@@ -9,7 +9,13 @@
 #define N_MANTISSA 23
 #define N_ROUND_BITS 3
 
-Binary32 fp32_cvt_to_binary32(const float value) {
+// Buffer used for "type punning" between float/uint32
+typedef union {
+    float fp32;
+    uint32_t u32;
+} Fp32Buffer;
+
+Binary32 fp32_to_binary32(const float value) {
     Fp32Buffer buf = { .fp32 = value };
 
     return (Binary32) {
@@ -19,18 +25,18 @@ Binary32 fp32_cvt_to_binary32(const float value) {
     };
 }
 
-float fp32_cvt_to_float(const Binary32 bin32) {
+float fp32_to_float(const Binary32 binary32) {
     Fp32Buffer buf = {
-        .u32 = ((bin32.sign & 0x1) << 31) |
-               (bin32.exp << N_MANTISSA) |
-               (bin32.mantissa & 0x7fffff)
+        .u32 = ((binary32.sign & 0x1) << 31) |
+                (binary32.exp << N_MANTISSA) |
+                (binary32.mantissa & 0x7fffff)
     };
 
     return buf.fp32;
 }
 
-static inline uint32_t get_mantissa_with_hidden_bit(const Binary32 a) {
-    return (0x1 << N_MANTISSA) | (a.mantissa & 0x7fffff);
+static inline uint32_t get_mantissa_with_hidden_bit(const Binary32 binary32) {
+    return (0x1 << N_MANTISSA) | (binary32.mantissa & 0x7fffff);
 }
 
 static uint8_t get_sticky_bit(const uint32_t mantissa, const uint8_t shift) {
@@ -48,10 +54,10 @@ static uint8_t get_sticky_bit(const uint32_t mantissa, const uint8_t shift) {
     return (((mantissa & mask) > 0) ? 0x1 : 0x0);
 }
 
-static uint8_t get_msb_digit(const uint32_t value) {
+static uint8_t get_msb_digit(const uint32_t mantissa) {
     uint8_t msb_digit = 31;
     while (msb_digit > 0) {
-        if (((value & (0x1 << msb_digit)) >> msb_digit) == 0x1) {
+        if (((mantissa & (0x1 << msb_digit)) >> msb_digit) == 0x1) {
             break;
         }
         msb_digit--;
@@ -60,7 +66,7 @@ static uint8_t get_msb_digit(const uint32_t value) {
     return msb_digit;
 }
 
-Binary32 fp32_add_binary32(const Binary32 a, const Binary32 b) {
+Binary32 fp32_add(const Binary32 a, const Binary32 b) {
     // Mantissas with a hidden bit and round bits
     uint32_t a_man = get_mantissa_with_hidden_bit(a) << N_ROUND_BITS;
     uint32_t b_man = get_mantissa_with_hidden_bit(b) << N_ROUND_BITS;
@@ -100,6 +106,7 @@ Binary32 fp32_add_binary32(const Binary32 a, const Binary32 b) {
             uint8_t shift = msb_digit - (N_MANTISSA + N_ROUND_BITS);
             uint8_t s = get_sticky_bit(norm_man, shift);
             norm_man >>= shift;
+            norm_man &= 0x7fffffe;
             norm_man |= s;
 
             // Overflow: return +-inf
