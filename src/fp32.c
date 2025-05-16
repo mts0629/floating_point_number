@@ -77,13 +77,13 @@ Binary32 fp32_add(const Binary32 a, const Binary32 b) {
         uint8_t shift = a.exp - b.exp;
         uint8_t s = get_sticky_bit(b_man, shift);
         b_man >>= MIN(shift, (N_MANTISSA + N_ROUND_BITS)); // Avoid too much shift down
-        b_man &= 0x7ffffe;
+        b_man &= 0x7fffffe;
         b_man |= s;
     } else if (b.exp > a.exp) {
         uint8_t shift = b.exp - a.exp;
         uint8_t s = get_sticky_bit(a_man, shift);
         a_man >>= MIN(shift, (N_MANTISSA + N_ROUND_BITS)); // Avoid too much shift down
-        a_man &= 0x7ffffe;
+        a_man &= 0x7fffffe;
         a_man |= s;
     }
 
