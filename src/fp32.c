@@ -88,8 +88,8 @@ Binary32 fp32_add(const Binary32 a, const Binary32 b) {
     }
 
     // Add mantissas
-    int32_t sa = (a.sign == 1) ? -(int32_t)a_man : (int32_t)a_man;
-    int32_t sb = (b.sign == 1) ? -(int32_t)b_man : (int32_t)b_man;
+    int32_t sa = (a.sign == 0x1) ? -(int32_t)a_man : (int32_t)a_man;
+    int32_t sb = (b.sign == 0x1) ? -(int32_t)b_man : (int32_t)b_man;
     int32_t sum_man = sa + sb;
 
     // Signature bit
@@ -141,4 +141,11 @@ Binary32 fp32_add(const Binary32 a, const Binary32 b) {
     }
 
     return (Binary32){ sign, sum_exp, ((norm_man >> N_ROUND_BITS) & 0x7fffff) };
+}
+
+Binary32 fp32_sub(const Binary32 a, const Binary32 b) {
+    Binary32 neg_b = b;
+    neg_b.sign = (neg_b.sign == 0x1) ? 0x0 : 0x1;
+
+    return fp32_add(a, neg_b);
 }

@@ -52,5 +52,14 @@ int main(void) {
         c.sign, c.exp, c.mantissa
     );
 
+    // Subtract
+    a = fp32_to_binary32(1.0);
+    b = fp32_to_binary32(2.0);
+    c = fp32_sub(a, b);
+    printf("%f - %f = %f (sign: %u, exp: %u, mantissa: 0x%x)\n",
+        fp32_to_float(a), fp32_to_float(b), fp32_to_float(c),
+        c.sign, c.exp, c.mantissa
+    );
+
     return 0;
 }
