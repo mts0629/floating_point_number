@@ -12,16 +12,19 @@ TARGETS = $(addprefix $(BLDDIR)/, $(basename $(wildcard *.c)))
 DEPS = $(OBJS:.o=.d)
 DEPS += $(addsuffix .d, $(subst $(BLDDIR), $(OBJDIR), $(TARGETS)))
 
-.PHONY: all debug clean
+.PHONY: all debug format clean
 
 .PRECIOUS: $(OBJDIR)/%.o
 
-all: $(TARGETS)
+all: format $(TARGETS)
 
 debug: CFLAGS += -g -O0
 debug: $(TARGETS)
 
 -include $(DEPS)
+
+format:
+	@clang-format -i ./src/* ./*.c
 
 $(BLDDIR)/%: $(OBJDIR)/%.o $(OBJS)
 	@mkdir -p $(dir $@)

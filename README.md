@@ -9,3 +9,4 @@ Know floating-point number mechanisms
 
 - GCC 7.5.0
 - GNU Make 4.1
+- clang-format 14.0.0

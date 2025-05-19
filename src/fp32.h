@@ -11,7 +11,8 @@ typedef struct {
 } Binary32;
 
 // Biased exponent for Binary32
-#define FP32_EXP(exp) { (exp) + 127 }
+#define FP32_EXP(exp) \
+    { (exp) + 127 }
 
 // Convert float to Binary32
 Binary32 fp32_to_binary32(const float value);
@@ -25,4 +26,4 @@ Binary32 fp32_add(const Binary32 a, const Binary32 b);
 // Subtract 2 Binary32 values: a - b
 Binary32 fp32_sub(const Binary32 a, const Binary32 b);
 
-#endif // FP32_H
+#endif  // FP32_H

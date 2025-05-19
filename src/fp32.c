@@ -1,10 +1,10 @@
-#include <stdbool.h>
-
 #include "fp32.h"
 
-#define MAX(a, b) (((a) >= (b)) ? (a): (b))
-#define MIN(a, b) (((a) <= (b)) ? (a): (b))
-#define ABS(a) (((a) >= 0) ? (a): -(a))
+#include <stdbool.h>
+
+#define MAX(a, b) (((a) >= (b)) ? (a) : (b))
+#define MIN(a, b) (((a) <= (b)) ? (a) : (b))
+#define ABS(a) (((a) >= 0) ? (a) : -(a))
 
 #define N_MANTISSA 23
 #define N_ROUND_BITS 3
@@ -16,21 +16,17 @@ typedef union {
 } Fp32Buffer;
 
 Binary32 fp32_to_binary32(const float value) {
-    Fp32Buffer buf = { .fp32 = value };
+    Fp32Buffer buf = {.fp32 = value};
 
-    return (Binary32) {
-        .sign = ((buf.u32 & 0x80000000) >> 31) & 0x1,
-        .exp = ((buf.u32 & 0x7f800000) >> N_MANTISSA) & 0xff,
-        .mantissa = buf.u32 & 0x7fffff
-    };
+    return (Binary32){.sign = ((buf.u32 & 0x80000000) >> 31) & 0x1,
+                      .exp = ((buf.u32 & 0x7f800000) >> N_MANTISSA) & 0xff,
+                      .mantissa = buf.u32 & 0x7fffff};
 }
 
 float fp32_to_float(const Binary32 binary32) {
-    Fp32Buffer buf = {
-        .u32 = ((binary32.sign & 0x1) << 31) |
-                (binary32.exp << N_MANTISSA) |
-                (binary32.mantissa & 0x7fffff)
-    };
+    Fp32Buffer buf = {.u32 = ((binary32.sign & 0x1) << 31) |
+                             (binary32.exp << N_MANTISSA) |
+                             (binary32.mantissa & 0x7fffff)};
 
     return buf.fp32;
 }
@@ -44,7 +40,8 @@ static uint8_t get_sticky_bit(const uint32_t mantissa, const uint8_t shift) {
     if (shift < 3) {
         // No sticy bit
         return 0x0;
-    } if (shift > (N_MANTISSA + N_ROUND_BITS)) {
+    }
+    if (shift > (N_MANTISSA + N_ROUND_BITS)) {
         // All bits are considered in the sticky bit
         mask = 0x7ffffff - 1;
     } else {
@@ -76,13 +73,15 @@ Binary32 fp32_add(const Binary32 a, const Binary32 b) {
     if (a.exp > b.exp) {
         uint8_t shift = a.exp - b.exp;
         uint8_t s = get_sticky_bit(b_man, shift);
-        b_man >>= MIN(shift, (N_MANTISSA + N_ROUND_BITS)); // Avoid too much shift down
+        b_man >>= MIN(
+            shift, (N_MANTISSA + N_ROUND_BITS));  // Avoid too much shift down
         b_man &= 0x7fffffe;
         b_man |= s;
     } else if (b.exp > a.exp) {
         uint8_t shift = b.exp - a.exp;
         uint8_t s = get_sticky_bit(a_man, shift);
-        a_man >>= MIN(shift, (N_MANTISSA + N_ROUND_BITS)); // Avoid too much shift down
+        a_man >>= MIN(
+            shift, (N_MANTISSA + N_ROUND_BITS));  // Avoid too much shift down
         a_man &= 0x7fffffe;
         a_man |= s;
     }
@@ -111,7 +110,7 @@ Binary32 fp32_add(const Binary32 a, const Binary32 b) {
 
             // Overflow: return +-inf
             if (((int)sum_exp + shift) > 255) {
-                return (Binary32){ sign, 255, 0x0 };
+                return (Binary32){sign, 255, 0x0};
             }
 
             sum_exp += shift;
@@ -121,7 +120,7 @@ Binary32 fp32_add(const Binary32 a, const Binary32 b) {
 
             // Underflow: return a subnormal number
             if (((int)sum_exp - shift) < 0) {
-                return (Binary32){ sign, 0, (norm_man & 0x7fffff) };
+                return (Binary32){sign, 0, (norm_man & 0x7fffff)};
             }
 
             sum_exp -= shift;
@@ -140,7 +139,7 @@ Binary32 fp32_add(const Binary32 a, const Binary32 b) {
         }
     }
 
-    return (Binary32){ sign, sum_exp, ((norm_man >> N_ROUND_BITS) & 0x7fffff) };
+    return (Binary32){sign, sum_exp, ((norm_man >> N_ROUND_BITS) & 0x7fffff)};
 }
 
 Binary32 fp32_sub(const Binary32 a, const Binary32 b) {
