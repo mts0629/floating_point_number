@@ -26,4 +26,7 @@ Binary32 fp32_add(const Binary32 a, const Binary32 b);
 // Subtract 2 Binary32 values: a - b
 Binary32 fp32_sub(const Binary32 a, const Binary32 b);
 
+// Subtract 2 Binary32 values: a * b
+Binary32 fp32_mul(const Binary32 a, const Binary32 b);
+
 #endif  // FP32_H

@@ -55,5 +55,13 @@ int main(void) {
            fp32_to_float(a), fp32_to_float(b), fp32_to_float(c), c.sign, c.exp,
            c.mantissa);
 
+    // Multiply
+    a = fp32_to_binary32(0.5);
+    b = fp32_to_binary32(-0.4375);
+    c = fp32_mul(a, b);
+    printf("%f * %f = %f (sign: %u, exp: %u, mantissa: 0x%x)\n",
+           fp32_to_float(a), fp32_to_float(b), fp32_to_float(c), c.sign, c.exp,
+           c.mantissa);
+
     return 0;
 }

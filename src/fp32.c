@@ -54,7 +54,19 @@ static uint8_t get_sticky_bit(const uint32_t mantissa, const uint8_t shift) {
 static uint8_t get_msb_digit(const uint32_t mantissa) {
     uint8_t msb_digit = 31;
     while (msb_digit > 0) {
-        if (((mantissa & (0x1 << msb_digit)) >> msb_digit) == 0x1) {
+        if (((mantissa & ((uint32_t)0x1 << msb_digit)) >> msb_digit) == 0x1) {
+            break;
+        }
+        msb_digit--;
+    }
+
+    return msb_digit;
+}
+
+static uint8_t get_msb_digit_64b(const uint64_t mantissa) {
+    uint8_t msb_digit = 63;
+    while (msb_digit > 0) {
+        if (((mantissa & ((uint64_t)0x1 << msb_digit)) >> msb_digit) == 0x1) {
             break;
         }
         msb_digit--;
@@ -147,4 +159,72 @@ Binary32 fp32_sub(const Binary32 a, const Binary32 b) {
     neg_b.sign = (neg_b.sign == 0x1) ? 0x0 : 0x1;
 
     return fp32_add(a, neg_b);
+}
+
+Binary32 fp32_mul(const Binary32 a, const Binary32 b) {
+    // Mantissas with a hidden bit and round bits
+    uint64_t a_man = get_mantissa_with_hidden_bit(a);
+    uint64_t b_man = get_mantissa_with_hidden_bit(b);
+
+    // Add two exponents
+    int mul_exp = a.exp + b.exp - 127;
+
+    // Multiply mantissas
+    uint64_t mul_man = a_man * b_man;
+
+    // Signature bit
+    uint8_t sign = (a.sign == b.sign) ? 0x0 : 0x1;
+
+    // Right shift to dispose fraction bits
+    uint64_t norm_man = mul_man;
+    uint8_t shift =
+        N_MANTISSA - N_ROUND_BITS;  // Consider round bits and a hidden bit
+    uint64_t mask = (((uint64_t)0x1 << (shift - (N_ROUND_BITS - 1))) - 1) - 1;
+    uint8_t s = ((norm_man & mask) > 0) ? 0x1 : 0x0;
+    norm_man >>= shift;
+    norm_man |= s;
+
+    while (true) {
+        uint8_t msb_digit = get_msb_digit_64b(norm_man);
+
+        if (msb_digit > (N_MANTISSA + N_ROUND_BITS)) {
+            uint8_t shift = msb_digit - (N_MANTISSA + N_ROUND_BITS);
+            uint8_t s = get_sticky_bit(norm_man, shift);
+            norm_man >>= shift;
+            norm_man &= 0x7fffffe;
+            norm_man |= s;
+
+            mul_exp += shift;
+        } else if (msb_digit < (N_MANTISSA + N_ROUND_BITS)) {
+            uint8_t shift = (N_MANTISSA + N_ROUND_BITS) - msb_digit;
+            norm_man <<= shift;
+
+            mul_exp -= shift;
+        }
+
+        // Overflow: return +-inf
+        if (mul_exp > 255) {
+            return (Binary32){sign, 255, 0x0};
+        }
+        // Underflow: return a subnormal number
+        if (mul_exp < 0) {
+            return (Binary32){
+                sign, 0, (uint32_t)((norm_man >> N_ROUND_BITS) & 0x7fffff)};
+        }
+
+        // Round-even by using guard bit, round bit and sticky bit
+        uint8_t lsb = (norm_man & 0x8) >> N_ROUND_BITS;
+        uint8_t g = (norm_man & 0x4) >> 2;  // Guard bit
+        uint8_t r = (norm_man & 0x2) >> 1;  // Round bit
+        uint8_t s = norm_man & 0x1;         // Sticky bit
+        uint8_t round_up = g & (lsb | r | s);
+        norm_man += (round_up << N_ROUND_BITS);
+
+        if (get_msb_digit_64b(norm_man) == (N_MANTISSA + N_ROUND_BITS)) {
+            break;
+        }
+    }
+
+    return (Binary32){sign, (uint8_t)mul_exp,
+                      (uint32_t)((norm_man >> N_ROUND_BITS) & 0x7fffff)};
 }
