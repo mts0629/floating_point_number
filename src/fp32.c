@@ -81,7 +81,7 @@ Binary32 fp32_add(const Binary32 a, const Binary32 b) {
     uint32_t b_man = get_mantissa_with_hidden_bit(b) << N_ROUND_BITS;
 
     // Pre-shift of mantissas: adjust exp. scale to a large one
-    uint8_t sum_exp = MAX(a.exp, b.exp);
+    int sum_exp = MAX(a.exp, b.exp);
     if (a.exp > b.exp) {
         uint8_t shift = a.exp - b.exp;
         uint8_t s = get_sticky_bit(b_man, shift);
@@ -120,22 +120,21 @@ Binary32 fp32_add(const Binary32 a, const Binary32 b) {
             norm_man &= 0x7fffffe;
             norm_man |= s;
 
-            // Overflow: return +-inf
-            if (((int)sum_exp + shift) > 255) {
-                return (Binary32){sign, 255, 0x0};
-            }
-
             sum_exp += shift;
+
         } else if (msb_digit < (N_MANTISSA + N_ROUND_BITS)) {
             uint8_t shift = (N_MANTISSA + N_ROUND_BITS) - msb_digit;
             norm_man <<= shift;
 
-            // Underflow: return a subnormal number
-            if (((int)sum_exp - shift) < 0) {
-                return (Binary32){sign, 0, (norm_man & 0x7fffff)};
-            }
-
             sum_exp -= shift;
+        }
+
+        if (sum_exp >= 255) {
+            // Overflow: return +-inf
+            return (Binary32){sign, 255, 0x0};
+        } else if (sum_exp < 0) {
+            // Underflow: return a subnormal number
+            return (Binary32){sign, 0, ((norm_man >> N_ROUND_BITS) & 0x7fffff)};
         }
 
         // Round-even by using guard bit, round bit and sticky bit
@@ -151,7 +150,8 @@ Binary32 fp32_add(const Binary32 a, const Binary32 b) {
         }
     }
 
-    return (Binary32){sign, sum_exp, ((norm_man >> N_ROUND_BITS) & 0x7fffff)};
+    return (Binary32){sign, (uint8_t)sum_exp,
+                      ((norm_man >> N_ROUND_BITS) & 0x7fffff)};
 }
 
 Binary32 fp32_sub(const Binary32 a, const Binary32 b) {
@@ -202,12 +202,11 @@ Binary32 fp32_mul(const Binary32 a, const Binary32 b) {
             mul_exp -= shift;
         }
 
-        // Overflow: return +-inf
-        if (mul_exp > 255) {
+        if (mul_exp >= 255) {
+            // Overflow: return +-inf
             return (Binary32){sign, 255, 0x0};
-        }
-        // Underflow: return a subnormal number
-        if (mul_exp < 0) {
+        } else if (mul_exp < 0) {
+            // Underflow: return a subnormal number
             return (Binary32){
                 sign, 0, (uint32_t)((norm_man >> N_ROUND_BITS) & 0x7fffff)};
         }
