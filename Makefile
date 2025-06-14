@@ -2,12 +2,14 @@ CC := gcc
 CFLAGS = -Wall -Wextra -Wpedantic -std=c99 -I$(SRCDIR)
 
 SRCDIR := src
+TESTDIR := test
 OBJDIR = $(BLDDIR)/obj
 BLDDIR := build
 
 SRCS = $(wildcard $(SRCDIR)/*.c)
+TESTS = $(wildcard $(TESTDIR)/*.c)
 OBJS = $(addprefix $(OBJDIR)/, $(SRCS:.c=.o))
-TARGETS = $(addprefix $(BLDDIR)/, $(basename $(wildcard *.c)))
+TARGETS = $(addprefix $(BLDDIR)/, $(basename $(wildcard $(TESTDIR)/*.c)))
 
 DEPS = $(OBJS:.o=.d)
 DEPS += $(addsuffix .d, $(subst $(BLDDIR), $(OBJDIR), $(TARGETS)))
