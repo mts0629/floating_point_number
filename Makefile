@@ -26,7 +26,7 @@ debug: $(TARGETS)
 -include $(DEPS)
 
 format:
-	@clang-format -i ./src/* ./*.c
+	@clang-format -i ./src/* ./test/*
 
 $(BLDDIR)/%: $(OBJDIR)/%.o $(OBJS)
 	@mkdir -p $(dir $@)

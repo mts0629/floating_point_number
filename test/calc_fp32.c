@@ -13,9 +13,8 @@ int main(void) {
     Binary32 b = fp32_to_binary32(0.5);
     Binary32 c = fp32_add(a, b);
     printf("%f + %f = %f (sign: %u, exp: %u, mantissa: 0x%x)\n",
-        fp32_to_float(a), fp32_to_float(b), fp32_to_float(c),
-        c.sign, c.exp, c.mantissa
-    );
+           fp32_to_float(a), fp32_to_float(b), fp32_to_float(c), c.sign, c.exp,
+           c.mantissa);
     assert(1000.f + 0.5f == fp32_to_float(c));
 
     // Carry
@@ -24,9 +23,8 @@ int main(void) {
     b = fp32_to_binary32(1000);
     c = fp32_add(a, b);
     printf("%f + %f = %f (sign: %u, exp: %u, mantissa: 0x%x)\n",
-        fp32_to_float(a), fp32_to_float(b), fp32_to_float(c),
-        c.sign, c.exp, c.mantissa
-    );
+           fp32_to_float(a), fp32_to_float(b), fp32_to_float(c), c.sign, c.exp,
+           c.mantissa);
     assert(1000.f + 1000.f == fp32_to_float(c));
 
     // Negative values
@@ -34,9 +32,8 @@ int main(void) {
     b = fp32_to_binary32(42);
     c = fp32_add(a, b);
     printf("%f + %f = %f (sign: %u, exp: %u, mantissa: 0x%x)\n",
-        fp32_to_float(a), fp32_to_float(b), fp32_to_float(c),
-        c.sign, c.exp, c.mantissa
-    );
+           fp32_to_float(a), fp32_to_float(b), fp32_to_float(c), c.sign, c.exp,
+           c.mantissa);
     assert(-42.195f + 42.f == fp32_to_float(c));
 
     // Round even
@@ -46,9 +43,8 @@ int main(void) {
     b = fp32_to_binary32(0.5);
     c = fp32_add(a, b);
     printf("%f + %f = %f (sign: %u, exp: %u, mantissa: 0x%x)\n",
-        fp32_to_float(a), fp32_to_float(b), fp32_to_float(c),
-        c.sign, c.exp, c.mantissa
-    );
+           fp32_to_float(a), fp32_to_float(b), fp32_to_float(c), c.sign, c.exp,
+           c.mantissa);
     assert(8388609.f + 0.5f == fp32_to_float(c));
 
     // Overflow: return inf
@@ -56,9 +52,8 @@ int main(void) {
     b = fp32_to_binary32(1.70141183e+38);
     c = fp32_add(a, b);
     printf("%f + %f = %f (sign: %u, exp: %u, mantissa: 0x%x)\n",
-        fp32_to_float(a), fp32_to_float(b), fp32_to_float(c),
-        c.sign, c.exp, c.mantissa
-    );
+           fp32_to_float(a), fp32_to_float(b), fp32_to_float(c), c.sign, c.exp,
+           c.mantissa);
     // No assertion, because an exception will occur
 
     // Subtract
@@ -66,9 +61,8 @@ int main(void) {
     b = fp32_to_binary32(2.0);
     c = fp32_sub(a, b);
     printf("%f - %f = %f (sign: %u, exp: %u, mantissa: 0x%x)\n",
-        fp32_to_float(a), fp32_to_float(b), fp32_to_float(c),
-        c.sign, c.exp, c.mantissa
-    );
+           fp32_to_float(a), fp32_to_float(b), fp32_to_float(c), c.sign, c.exp,
+           c.mantissa);
     assert(1.0f - 2.0f == fp32_to_float(c));
 
     return 0;

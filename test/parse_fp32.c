@@ -8,8 +8,8 @@ int main(void) {
     float f = -3.14f;
     Binary32 bin32 = fp32_to_binary32(f);
 
-    printf("%f: sign = %x, exp = %u, mantissa = 0x%x\n",
-        f, bin32.sign, bin32.exp, bin32.mantissa);
+    printf("%f: sign = %x, exp = %u, mantissa = 0x%x\n", f, bin32.sign,
+           bin32.exp, bin32.mantissa);
     assert(-3.14f == fp32_to_float(bin32));
 
     // Get 42.195f from binary32 bits
@@ -25,8 +25,8 @@ int main(void) {
     uint32_t mantissa = 0x28c7ae;
     f = fp32_to_float((Binary32){sign, exp, mantissa});
 
-    printf("%f: sign = %x, exp = %u, mantissa = 0x%x\n",
-        f, sign, exp, mantissa);
+    printf("%f: sign = %x, exp = %u, mantissa = 0x%x\n", f, sign, exp,
+           mantissa);
 
     return 0;
 }
