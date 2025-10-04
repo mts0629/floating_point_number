@@ -56,7 +56,7 @@ int main(void) {
            c.mantissa);
     // No assertion, because an exception will occur
 
-    // Subtract
+    // Subtraction
     a = fp32_to_binary32(1.0);
     b = fp32_to_binary32(2.0);
     c = fp32_sub(a, b);
@@ -65,7 +65,7 @@ int main(void) {
            c.mantissa);
     assert(1.0f - 2.0f == fp32_to_float(c));
 
-    // Multiply
+    // Multiplication
     a = fp32_to_binary32(0.5);
     b = fp32_to_binary32(-0.4375);
     c = fp32_mul(a, b);

@@ -2,7 +2,7 @@
 
 Know floating-point number mechanisms
 
-- Emulation of IEEE 754 binary32 expression
+- Emulation of IEEE 754 binary32 expression (as `Binary32`)
 - Emulation of binary32 calculation process
 
 ## Environment
@@ -13,9 +13,12 @@ Know floating-point number mechanisms
 
 ## Build
 
-`make`
+`$ make`
 
 Test programs are built in `build/test/`.
+
+- `test/parse_fp32.c`: parse between `float` and `Binary32` type
+- `test/calc_fp32.c`: calculation with `Binary32`
 
 ## License
 
