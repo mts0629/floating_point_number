@@ -74,5 +74,14 @@ int main(void) {
            c.mantissa);
     assert(0.5f * -0.4375f == fp32_to_float(c));
 
+    // Division
+    a = fp32_to_binary32(1.0);
+    b = fp32_to_binary32(3.0);
+    c = fp32_div(a, b);
+    printf("%f / %f = %f (sign: %u, exp: %u, mantissa: 0x%x)\n",
+           fp32_to_float(a), fp32_to_float(b), fp32_to_float(c), c.sign, c.exp,
+           c.mantissa);
+    assert(1.0f / 3.0f == fp32_to_float(c));
+
     return 0;
 }
