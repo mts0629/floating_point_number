@@ -192,30 +192,26 @@ Binary32 fp32_mul(const Binary32 a, const Binary32 b) {
 }
 
 Binary32 fp32_div(const Binary32 a, const Binary32 b) {
+    // Signature bit
+    uint8_t sign = (a.sign == b.sign) ? 0x0 : 0x1;
+
+    if ((a.exp == 0) && (a.mantissa == 0)) {
+        return (Binary32){sign, 0, 0};
+    }
+
     // Mantissas with a hidden bit and round bits
-    uint64_t a_man = get_mantissa_with_hidden_bit(a);
-    uint64_t b_man = get_mantissa_with_hidden_bit(b);
+    uint64_t a_man = get_mantissa_with_hidden_bit(a) << N_ROUND_BITS;
+    uint64_t b_man = get_mantissa_with_hidden_bit(b) << N_ROUND_BITS;
 
     // Subtract two exponents
     int exp = a.exp - b.exp + 127;
 
     // Divide mantissas
-    uint64_t div_man = (a_man << (N_MANTISSA + N_ROUND_BITS + N_ROUND_BITS)) /
-                       (b_man << N_ROUND_BITS);
-
-    // Right shift to dispose extra fraction bits,
-    // considering with round bits and a hidden bit
-    // uint8_t shift = N_MANTISSA + N_ROUND_BITS;
-    // uint64_t mask = (((uint64_t)0x1 << (shift - (N_ROUND_BITS - 1))) - 1) -
-    // 1; uint8_t sticky_bit = ((div_man & mask) > 0) ? 0x1 : 0x0; div_man >>=
-    // N_ROUND_BITS; div_man &= 0x7fffffe; div_man |= sticky_bit;
+    uint64_t div_man = (a_man << (N_MANTISSA + N_ROUND_BITS)) / b_man;
 
     // Normalize the mantissa
     uint32_t mantissa = (uint32_t)div_man;
     normalize(&mantissa, &exp);
-
-    // Signature bit
-    uint8_t sign = (a.sign == b.sign) ? 0x0 : 0x1;
 
     return (Binary32){sign, (uint8_t)exp, mantissa};
 }
