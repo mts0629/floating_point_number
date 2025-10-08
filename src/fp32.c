@@ -209,6 +209,12 @@ Binary32 fp32_div(const Binary32 a, const Binary32 b) {
     // Divide mantissas
     uint64_t div_man = (a_man << (N_MANTISSA + N_ROUND_BITS)) / b_man;
 
+    // Get a sticky bit
+    uint32_t mod = (a_man << (N_MANTISSA + N_ROUND_BITS)) % b_man;
+    uint8_t sticky_bit = (mod > 0) ? 0x1 : 0x0;
+    div_man &= 0x7fffffe;
+    div_man |= sticky_bit;
+
     // Normalize the mantissa
     uint32_t mantissa = (uint32_t)div_man;
     normalize(&mantissa, &exp);
