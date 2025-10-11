@@ -15,7 +15,7 @@ Know floating-point number mechanisms
 
 `$ make`
 
-Test programs are built in `build/test/`.
+Test programs are built in `build/bin/` (build and run with `make test`).
 
 - `test/parse_fp32.c`: parse between `float` and `Binary32` type
 - `test/calc_fp32.c`: calculation with `Binary32`

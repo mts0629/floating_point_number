@@ -3,20 +3,19 @@ CFLAGS = -Wall -Wextra -Wpedantic -std=c99 -I$(SRCDIR)
 
 SRCDIR := src
 TESTDIR := test
-OBJDIR = $(BLDDIR)/obj
-BLDDIR := build
+BUILDDIR := build
 
 SRCS = $(wildcard $(SRCDIR)/*.c)
 TESTS = $(wildcard $(TESTDIR)/*.c)
-OBJS = $(addprefix $(OBJDIR)/, $(SRCS:.c=.o))
-TARGETS = $(addprefix $(BLDDIR)/, $(basename $(wildcard $(TESTDIR)/*.c)))
+OBJS = $(addprefix $(BUILDDIR)/, $(SRCS:.c=.o))
+TARGETS = $(patsubst $(TESTDIR)/%, $(BUILDDIR)/bin/%, $(TESTS:.c=))
 
 DEPS = $(OBJS:.o=.d)
-DEPS += $(addsuffix .d, $(subst $(BLDDIR), $(OBJDIR), $(TARGETS)))
+DEPS += $(addprefix $(BUILDDIR)/, $(TESTS:.c=.d))
 
-.PHONY: all debug format clean
+.PHONY: all debug format test clean
 
-.PRECIOUS: $(OBJDIR)/%.o
+.PRECIOUS: $(BUILDDIR)/%.o
 
 all: format $(TARGETS)
 
@@ -28,13 +27,16 @@ debug: $(TARGETS)
 format:
 	@clang-format -i ./src/* ./test/*
 
-$(BLDDIR)/%: $(OBJDIR)/%.o $(OBJS)
+test: $(TARGETS)
+	@for target in $(TARGETS); do echo "$${target}"; ./$${target}; done
+
+$(BUILDDIR)/bin/%: $(TESTDIR)/%.c $(OBJS)
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $^ -o $@
 
-$(OBJDIR)/%.o: %.c
+$(BUILDDIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c -MMD -MP $< -o $@
 
 clean:
-	$(RM) -r $(BLDDIR)
+	$(RM) -r $(BUILDDIR)
