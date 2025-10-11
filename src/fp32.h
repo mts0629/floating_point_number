@@ -8,28 +8,28 @@ typedef struct {
     uint8_t sign;       // 1 bit, 1 for negative
     uint8_t exp;        // 8 bit ([-126, 127], biased by 127)
     uint32_t mantissa;  // 23 bit by hidden bit convension
-} Binary32;
+} Fp32;
 
-// Biased exponent for Binary32
+// Biased exponent for Fp32
 #define FP32_EXP(exp) \
     { (exp) + 127 }
 
-// Convert float to Binary32
-Binary32 fp32_to_binary32(const float value);
+// Convert float to Fp32
+Fp32 fp32_from_float(const float value);
 
-// Convert Binary32 to float
-float fp32_to_float(const Binary32 binary32);
+// Convert Fp32 to float
+float fp32_to_float(const Fp32 fp32);
 
-// Add 2 Binary32 values: a + b
-Binary32 fp32_add(const Binary32 a, const Binary32 b);
+// Add 2 Fp32 values: a + b
+Fp32 fp32_add(const Fp32 a, const Fp32 b);
 
-// Subtract 2 Binary32 values: a - b
-Binary32 fp32_sub(const Binary32 a, const Binary32 b);
+// Subtract 2 Fp32 values: a - b
+Fp32 fp32_sub(const Fp32 a, const Fp32 b);
 
-// Multiply 2 Binary32 values: a * b
-Binary32 fp32_mul(const Binary32 a, const Binary32 b);
+// Multiply 2 Fp32 values: a * b
+Fp32 fp32_mul(const Fp32 a, const Fp32 b);
 
-// Divide 2 Binary32 values: a / b
-Binary32 fp32_div(const Binary32 a, const Binary32 b);
+// Divide 2 Fp32 values: a / b
+Fp32 fp32_div(const Fp32 a, const Fp32 b);
 
 #endif  // FP32_H

@@ -6,7 +6,7 @@
 int main(void) {
     // Get binary32 bits from -3.14f
     float f = -3.14f;
-    Binary32 bin32 = fp32_to_binary32(f);
+    Fp32 bin32 = fp32_from_float(f);
 
     printf("%f: sign = %x, exp = %u, mantissa = 0x%x\n", f, bin32.sign,
            bin32.exp, bin32.mantissa);
@@ -23,7 +23,7 @@ int main(void) {
     uint8_t sign = 0;
     uint8_t exp = FP32_EXP(5);
     uint32_t mantissa = 0x28c7ae;
-    f = fp32_to_float((Binary32){sign, exp, mantissa});
+    f = fp32_to_float((Fp32){sign, exp, mantissa});
 
     printf("%f: sign = %x, exp = %u, mantissa = 0x%x\n", f, sign, exp,
            mantissa);

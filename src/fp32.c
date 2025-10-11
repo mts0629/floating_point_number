@@ -15,24 +15,24 @@ typedef union {
     uint32_t u32;
 } Fp32Buffer;
 
-Binary32 fp32_to_binary32(const float value) {
+Fp32 fp32_from_float(const float value) {
     Fp32Buffer buf = {.fp32 = value};
 
-    return (Binary32){.sign = ((buf.u32 & 0x80000000) >> 31) & 0x1,
+    return (Fp32){.sign = ((buf.u32 & 0x80000000) >> 31) & 0x1,
                       .exp = ((buf.u32 & 0x7f800000) >> N_MANTISSA) & 0xff,
                       .mantissa = buf.u32 & 0x7fffff};
 }
 
-float fp32_to_float(const Binary32 binary32) {
-    Fp32Buffer buf = {.u32 = ((binary32.sign & 0x1) << 31) |
-                             (binary32.exp << N_MANTISSA) |
-                             (binary32.mantissa & 0x7fffff)};
+float fp32_to_float(const Fp32 fp32) {
+    Fp32Buffer buf = {.u32 = ((fp32.sign & 0x1) << 31) |
+                             (fp32.exp << N_MANTISSA) |
+                             (fp32.mantissa & 0x7fffff)};
 
     return buf.fp32;
 }
 
-static inline uint32_t get_mantissa_with_hidden_bit(const Binary32 binary32) {
-    return (0x1 << N_MANTISSA) | (binary32.mantissa & 0x7fffff);
+static inline uint32_t get_mantissa_with_hidden_bit(const Fp32 fp32) {
+    return (0x1 << N_MANTISSA) | (fp32.mantissa & 0x7fffff);
 }
 
 static uint8_t get_sticky_bit(const uint32_t mantissa, const uint8_t shift) {
@@ -116,7 +116,7 @@ static void normalize(uint32_t *mantissa, int *exp) {
     *exp = e;
 }
 
-Binary32 fp32_add(const Binary32 a, const Binary32 b) {
+Fp32 fp32_add(const Fp32 a, const Fp32 b) {
     // Mantissas with a hidden bit and round bits
     uint32_t a_man = get_mantissa_with_hidden_bit(a) << N_ROUND_BITS;
     uint32_t b_man = get_mantissa_with_hidden_bit(b) << N_ROUND_BITS;
@@ -151,17 +151,17 @@ Binary32 fp32_add(const Binary32 a, const Binary32 b) {
     int exp = MAX(a.exp, b.exp);
     normalize(&mantissa, &exp);
 
-    return (Binary32){sign, (uint8_t)exp, mantissa};
+    return (Fp32){sign, (uint8_t)exp, mantissa};
 }
 
-Binary32 fp32_sub(const Binary32 a, const Binary32 b) {
-    Binary32 neg_b = b;
+Fp32 fp32_sub(const Fp32 a, const Fp32 b) {
+    Fp32 neg_b = b;
     neg_b.sign = (neg_b.sign == 0x1) ? 0x0 : 0x1;
 
     return fp32_add(a, neg_b);
 }
 
-Binary32 fp32_mul(const Binary32 a, const Binary32 b) {
+Fp32 fp32_mul(const Fp32 a, const Fp32 b) {
     // Mantissas with a hidden bit and round bits
     uint64_t a_man = get_mantissa_with_hidden_bit(a);
     uint64_t b_man = get_mantissa_with_hidden_bit(b);
@@ -188,15 +188,15 @@ Binary32 fp32_mul(const Binary32 a, const Binary32 b) {
     // Signature bit
     uint8_t sign = (a.sign == b.sign) ? 0x0 : 0x1;
 
-    return (Binary32){sign, (uint8_t)exp, mantissa};
+    return (Fp32){sign, (uint8_t)exp, mantissa};
 }
 
-Binary32 fp32_div(const Binary32 a, const Binary32 b) {
+Fp32 fp32_div(const Fp32 a, const Fp32 b) {
     // Signature bit
     uint8_t sign = (a.sign == b.sign) ? 0x0 : 0x1;
 
     if ((a.exp == 0) && (a.mantissa == 0)) {
-        return (Binary32){sign, 0, 0};
+        return (Fp32){sign, 0, 0};
     }
 
     // Mantissas with a hidden bit and round bits
@@ -219,5 +219,5 @@ Binary32 fp32_div(const Binary32 a, const Binary32 b) {
     uint32_t mantissa = (uint32_t)div_man;
     normalize(&mantissa, &exp);
 
-    return (Binary32){sign, (uint8_t)exp, mantissa};
+    return (Fp32){sign, (uint8_t)exp, mantissa};
 }
