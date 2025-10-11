@@ -195,8 +195,13 @@ Fp32 fp32_div(const Fp32 a, const Fp32 b) {
     // Signature bit
     uint8_t sign = (a.sign == b.sign) ? 0x0 : 0x1;
 
+    // Return 0 when a == 0
     if ((a.exp == 0) && (a.mantissa == 0)) {
         return (Fp32){sign, 0, 0};
+    }
+    // Return +-inf when b == 0
+    if ((b.exp == 0) && (b.mantissa == 0)) {
+        return (Fp32){sign, 255, 0};
     }
 
     // Mantissas with a hidden bit and round bits
