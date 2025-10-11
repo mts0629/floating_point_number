@@ -21,7 +21,7 @@ int main(void) {
     // - exp = 132 = 5 + 127 in excess (/biased) notation
     // - mantissa = 0b'010 1000 1100 0111 1010 1110 = 0x28c7ae
     uint8_t sign = 0;
-    uint8_t exp = FP32_EXP(5);
+    uint8_t exp = 5 + 127;
     uint32_t mantissa = 0x28c7ae;
     f = fp32_to_float((Fp32){sign, exp, mantissa});
 

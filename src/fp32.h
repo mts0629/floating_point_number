@@ -10,10 +10,6 @@ typedef struct {
     uint32_t mantissa;  // 23 bit by hidden bit convension
 } Fp32;
 
-// Biased exponent for Fp32
-#define FP32_EXP(exp) \
-    { (exp) + 127 }
-
 // Convert float to Fp32
 Fp32 fp32_from_float(const float value);
 

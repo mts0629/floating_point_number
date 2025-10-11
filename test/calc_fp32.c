@@ -74,6 +74,15 @@ int main(void) {
            c.mantissa);
     assert(0.5f * -0.4375f == fp32_to_float(c));
 
+    // Multiply with zero
+    a = fp32_from_float(0.5);
+    b = fp32_from_float(0.0);
+    c = fp32_mul(a, b);
+    printf("%f * %f = %f (sign: %u, exp: %u, mantissa: 0x%x)\n",
+           fp32_to_float(a), fp32_to_float(b), fp32_to_float(c), c.sign, c.exp,
+           c.mantissa);
+    assert(0.5f * 0.0f == fp32_to_float(c));
+
     // Division
     a = fp32_from_float(1.0);
     b = fp32_from_float(3.0);
